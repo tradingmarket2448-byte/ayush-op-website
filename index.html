@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AYUSH OP — creator, gamer, developer and problem solver." />
+  <title>AYUSH OP | Personal Website</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="loader" class="loader"><div class="loader-mark">AO</div><div class="loader-text">AYUSH OP</div></div>
+  <div class="cursor-glow"></div>
+  <div class="noise"></div>
+  <div class="particles" id="particles"></div>
+
+  <header class="nav-wrap">
+    <nav class="nav container">
+      <a class="brand" href="#home"><span>AO</span> AYUSH OP</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu"><span></span><span></span><span></span></button>
+      <div class="nav-links" id="navLinks">
+        <a href="#home">Home</a><a href="#about">About</a><a href="#projects">Projects</a><a href="#skills">Skills</a><a href="#gallery">Photos</a><a href="#help">Help</a><a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero container" id="home">
+      <div class="hero-copy reveal">
+        <div class="eyebrow"><span></span> ONLINE • READY TO HELP</div>
+        <h1>AYUSH <b>OP</b></h1>
+        <p class="hero-sub" id="heroSubtitle">Creator · Gamer · Developer · Problem Solver</p>
+        <p class="hero-text" id="heroText">Welcome to my personal space. Explore my work, connect with me, and ask for help whenever you need it.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#help">Get Help <i>↗</i></a>
+          <a class="btn ghost" href="#about">Explore Website</a>
+        </div>
+        <div class="quick-socials">
+          <a id="phoneLink" href="tel:9754478008">PHONE</a>
+          <a id="instagramLink" href="https://www.instagram.com/yk._4yushhh/" target="_blank" rel="noreferrer">INSTAGRAM</a>
+          <a id="telegramLink" href="https://t.me/maybe_4yush" target="_blank" rel="noreferrer">TELEGRAM</a>
+        </div>
+      </div>
+      <div class="hero-visual reveal delay-1">
+        <div class="orb orb-a"></div><div class="orb orb-b"></div>
+        <div class="hud-card glass photo-hud">
+          <div class="hud-top"><span>AYUSH.OP</span><span>LIVE PROFILE</span></div>
+          <div class="photo-stage">
+            <img class="profile-photo active" src="assets/ayush-01.jpg" alt="Ayush OP in a white suit" />
+            <img class="profile-photo" src="assets/ayush-02.png" alt="Ayush OP riding a motorcycle" />
+            <img class="profile-photo" src="assets/ayush-03.png" alt="Ayush OP at an event" />
+            <div class="photo-reticle"></div>
+            <div class="photo-label"><span>AYUSH OP</span><small>CREATOR MODE</small></div>
+          </div>
+          <div class="hud-line"><span>STATUS</span><strong>ACTIVE</strong></div>
+          <div class="hud-line"><span>MISSION</span><strong>CREATE • HELP • LEVEL UP</strong></div>
+          <div class="scanline"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" id="about">
+      <div class="section-head reveal"><span>01</span><h2>ABOUT <b>ME</b></h2></div>
+      <div class="about-grid">
+        <div class="about-main glass reveal">
+          <div class="tag">WHO I AM</div>
+          <h3>Hi, I'm <span id="profileNameText">Ayush Mishra.</span></h3>
+          <p id="aboutText">I'm passionate about technology, gaming, web development, creativity, and helping people solve problems. I enjoy building projects, learning new tools, and turning ideas into interactive experiences.</p>
+        </div>
+        <div class="mini-card glass reveal delay-1"> <strong>01</strong><span>GAMING</span><small>Play. Learn. Improve.</small></div>
+        <div class="mini-card glass reveal delay-2"> <strong>02</strong><span>TECH</span><small>Build with modern tools.</small></div>
+        <div class="mini-card glass reveal delay-3"> <strong>03</strong><span>CREATE</span><small>Design ideas into reality.</small></div>
+        <div class="mini-card glass reveal delay-4"> <strong>04</strong><span>HELP</span><small>Make problems easier.</small></div>
+      </div>
+    </section>
+
+    <section class="section container" id="projects">
+      <div class="section-head reveal"><span>02</span><h2>MY <b>PROJECTS</b></h2></div>
+      <div class="project-grid">
+        <article class="project glass reveal"><div class="project-number">01</div><h3 id="project1Title">Future Web</h3><p id="project1Desc">A modern experimental website with motion, glow effects and interactive UI.</p><div class="chips"><span>HTML</span><span>CSS</span><span>JS</span></div></article>
+        <article class="project glass reveal delay-1"><div class="project-number">02</div><h3 id="project2Title">Gaming Hub</h3><p id="project2Desc">A creator-focused gaming interface for videos, community and updates.</p><div class="chips"><span>UI/UX</span><span>ANIMATION</span><span>WEB</span></div></article>
+        <article class="project glass reveal delay-2"><div class="project-number">03</div><h3 id="project3Title">Help Center</h3><p id="project3Desc">A simple place where visitors can submit questions and request support.</p><div class="chips"><span>FORMS</span><span>API</span><span>NETLIFY</span></div></article>
+      </div>
+    </section>
+
+    <section class="section container" id="gallery">
+      <div class="section-head reveal"><span>04</span><h2>MY <b>PHOTOS</b></h2></div>
+      <div class="photo-grid">
+        <figure class="photo-card glass reveal"><img src="assets/ayush-01.jpg" alt="Ayush OP in a white suit"><figcaption><span>01</span><strong>FORMAL MODE</strong></figcaption></figure>
+        <figure class="photo-card glass reveal delay-1"><img src="assets/ayush-02.png" alt="Ayush OP on a motorcycle"><figcaption><span>02</span><strong>RIDE MODE</strong></figcaption></figure>
+        <figure class="photo-card glass reveal delay-2"><img src="assets/ayush-03.png" alt="Ayush OP at an event"><figcaption><span>03</span><strong>EVENT MODE</strong></figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section container" id="skills">
+      <div class="section-head reveal"><span>05</span><h2>MY <b>SKILLS</b></h2></div>
+      <div class="skills-grid">
+        <div class="skill glass reveal"><span>HTML</span><strong>90%</strong><div class="bar"><i style="width:90%"></i></div></div>
+        <div class="skill glass reveal delay-1"><span>CSS</span><strong>88%</strong><div class="bar"><i style="width:88%"></i></div></div>
+        <div class="skill glass reveal delay-2"><span>JAVASCRIPT</span><strong>82%</strong><div class="bar"><i style="width:82%"></i></div></div>
+        <div class="skill glass reveal delay-3"><span>REACT</span><strong>76%</strong><div class="bar"><i style="width:76%"></i></div></div>
+        <div class="skill glass reveal delay-4"><span>NEXT.JS</span><strong>70%</strong><div class="bar"><i style="width:70%"></i></div></div>
+        <div class="skill glass reveal"><span>THREE.JS / GSAP</span><strong>68%</strong><div class="bar"><i style="width:68%"></i></div></div>
+      </div>
+    </section>
+
+    <section class="help-section section" id="help">
+      <div class="container">
+        <div class="help-box glass reveal">
+          <div><div class="tag">NEED A HAND?</div><h2>HAVE A <b>PROBLEM?</b></h2><p>Tell me what you're stuck on. Send a request and I'll have a look.</p></div>
+          <button class="btn primary" id="openHelp">OPEN HELP CENTER ↗</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" id="contact">
+      <div class="section-head reveal"><span>06</span><h2>CONNECT <b>WITH ME</b></h2></div>
+      <div class="social-grid">
+        <a class="social-card glass reveal" id="socialPhone" href="tel:9754478008"><span class="social-icon">☎</span><span><small>PHONE</small><strong id="phoneLabel">9754478008</strong></span><em>↗</em></a>
+        <a class="social-card glass reveal delay-1" id="socialInstagram" href="https://www.instagram.com/yk._4yushhh/" target="_blank" rel="noreferrer"><span class="social-icon">◎</span><span><small>INSTAGRAM</small><strong id="instagramLabel">@yk._4yushhh</strong></span><em>↗</em></a>
+        <a class="social-card glass reveal delay-2" id="socialDiscord" href="#"><span class="social-icon">◈</span><span><small>DISCORD</small><strong id="discordLabel">@pandit.vidhyak</strong></span><em>↗</em></a>
+        <a class="social-card glass reveal delay-3" id="socialTelegram" href="https://t.me/maybe_4yush" target="_blank" rel="noreferrer"><span class="social-icon">✈</span><span><small>TELEGRAM</small><strong id="telegramLabel">@maybe_4yush</strong></span><em>↗</em></a>
+        <a class="social-card glass reveal delay-4" id="socialYoutube" href="#"><span class="social-icon">▶</span><span><small>YOUTUBE</small><strong id="youtubeLabel">COMING SOON</strong></span><em>↗</em></a>
+        <a class="social-card glass reveal" id="socialTwitter" href="#"><span class="social-icon">𝕏</span><span><small>X / TWITTER</small><strong id="twitterLabel">COMING SOON</strong></span><em>↗</em></a>
+      </div>
+      <div class="contact-form glass reveal">
+        <div><div class="tag">LET'S TALK</div><h3>BUILD SOMETHING <span>AWESOME.</span></h3></div>
+        <form name="ayush-contact" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="contactForm">
+          <input type="hidden" name="form-name" value="ayush-contact"><input type="hidden" name="bot-field">
+          <input name="name" placeholder="Your name" required><input name="email" type="email" placeholder="Your email" required>
+          <textarea name="message" rows="5" placeholder="Your message" required></textarea><button class="btn primary" type="submit">SEND MESSAGE ↗</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container"><div class="brand"><span>AO</span> AYUSH OP</div><p>© 2026 AYUSH OP. All Rights Reserved.</p><span class="admin-link-wrap"><a href="admin.html">ADMIN</a> <a href="#home">BACK TO TOP ↑</a></span></div></footer>
+
+  <div class="modal" id="helpModal" aria-hidden="true">
+    <div class="modal-backdrop" id="closeHelp"></div>
+    <div class="modal-card glass">
+      <button class="modal-close" id="closeHelpBtn">×</button>
+      <div class="tag">HELP CENTER</div><h2>HOW CAN I <b>HELP?</b></h2><p class="modal-intro">Describe your issue clearly and send it to Ayush.</p>
+      <form name="ayush-help" method="POST" data-netlify="true" netlify-honeypot="bot-field" id="helpForm">
+        <input type="hidden" name="form-name" value="ayush-help"><input type="hidden" name="bot-field">
+        <input name="name" placeholder="Your name" required><input name="email" type="email" placeholder="Email (optional)">
+        <select name="category"><option>General Help</option><option>Website / Tech</option><option>Gaming</option><option>Project</option><option>Other</option></select>
+        <textarea name="problem" rows="6" placeholder="Type your problem or question..." required></textarea>
+        <button class="btn primary full" type="submit">SEND HELP REQUEST ↗</button>
+      </form>
+      <div class="success" id="helpSuccess"><div>✓</div><h3>REQUEST SENT</h3><p>Thanks for reaching out. Ayush will check your request.</p></div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
