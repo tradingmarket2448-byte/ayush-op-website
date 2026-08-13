@@ -154,5 +154,234 @@
     </div>
   </div>
   <script src="script.js"></script>
+  <!-- AYUSH AI -->
+<style>
+  #ayush-ai-button {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 99999;
+    width: 64px;
+    height: 64px;
+    border: 1px solid rgba(255, 60, 60, 0.7);
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #ff4b4b, #8b0000 55%, #090909);
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.55);
+    transition: .25s ease;
+  }
+
+  #ayush-ai-button:hover {
+    transform: scale(1.08);
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
+  }
+
+  #ayush-ai-chat {
+    display: none;
+    position: fixed;
+    right: 22px;
+    bottom: 98px;
+    z-index: 99999;
+    width: min(390px, calc(100vw - 30px));
+    height: 560px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 60, 60, 0.45);
+    border-radius: 22px;
+    background: rgba(10, 10, 10, 0.96);
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.35);
+    backdrop-filter: blur(18px);
+  }
+
+  #ayush-ai-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 18px;
+    background: linear-gradient(135deg, #180000, #080808);
+    border-bottom: 1px solid rgba(255, 60, 60, 0.2);
+    color: white;
+  }
+
+  #ayush-ai-header strong {
+    color: #ff3b3b;
+    font-size: 17px;
+  }
+
+  #ayush-ai-close {
+    border: 0;
+    background: transparent;
+    color: #aaa;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  #ayush-ai-messages {
+    height: calc(100% - 125px);
+    overflow-y: auto;
+    padding: 16px;
+  }
+
+  .ayush-ai-msg {
+    max-width: 85%;
+    padding: 11px 13px;
+    margin-bottom: 11px;
+    border-radius: 15px;
+    line-height: 1.45;
+    font-size: 14px;
+    white-space: pre-wrap;
+  }
+
+  .ayush-ai-bot {
+    background: #171717;
+    border: 1px solid #2b2b2b;
+    color: #eee;
+  }
+
+  .ayush-ai-user {
+    margin-left: auto;
+    background: linear-gradient(135deg, #b30000, #ff2f2f);
+    color: white;
+  }
+
+  #ayush-ai-input-row {
+    display: flex;
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px solid rgba(255, 60, 60, 0.2);
+    background: #0a0a0a;
+  }
+
+  #ayush-ai-input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid #2d2d2d;
+    outline: none;
+    border-radius: 12px;
+    padding: 12px;
+    background: #131313;
+    color: white;
+  }
+
+  #ayush-ai-send {
+    border: 0;
+    border-radius: 12px;
+    padding: 0 16px;
+    background: #e00000;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  #ayush-ai-send:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+</style>
+
+<button id="ayush-ai-button" aria-label="Open AYUSH AI">🤖</button>
+
+<div id="ayush-ai-chat">
+  <div id="ayush-ai-header">
+    <div>
+      <strong>AYUSH AI</strong><br>
+      <small style="color:#aaa;">Your AI assistant</small>
+    </div>
+    <button id="ayush-ai-close" aria-label="Close">×</button>
+  </div>
+
+  <div id="ayush-ai-messages">
+    <div class="ayush-ai-msg ayush-ai-bot">
+      Hi! 👋 I'm AYUSH AI. Ask me anything.
+    </div>
+  </div>
+
+  <div id="ayush-ai-input-row">
+    <input
+      id="ayush-ai-input"
+      type="text"
+      placeholder="Ask me anything..."
+      autocomplete="off"
+    />
+    <button id="ayush-ai-send">Send</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const WORKER_URL = "https://ayushxai.tradingmarket2448.workers.dev";
+
+  const button = document.getElementById("ayush-ai-button");
+  const chat = document.getElementById("ayush-ai-chat");
+  const close = document.getElementById("ayush-ai-close");
+  const input = document.getElementById("ayush-ai-input");
+  const send = document.getElementById("ayush-ai-send");
+  const messages = document.getElementById("ayush-ai-messages");
+
+  function addMessage(text, type) {
+    const div = document.createElement("div");
+    div.className = `ayush-ai-msg ${type === "user" ? "ayush-ai-user" : "ayush-ai-bot"}`;
+    div.textContent = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  async function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = "";
+    addMessage(message, "user");
+
+    const loading = addMessage("AYUSH AI is thinking...", "bot");
+    send.disabled = true;
+
+    try {
+      const response = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "AI request failed.");
+      }
+
+      loading.textContent = data.answer || "I couldn't generate a response.";
+    } catch (error) {
+      console.error(error);
+      loading.textContent =
+        "Sorry 😕 AI is temporarily unavailable. Please try again.";
+    } finally {
+      send.disabled = false;
+      input.focus();
+    }
+  }
+
+  button.addEventListener("click", () => {
+    chat.style.display = "block";
+    input.focus();
+  });
+
+  close.addEventListener("click", () => {
+    chat.style.display = "none";
+  });
+
+  send.addEventListener("click", sendMessage);
+
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      sendMessage();
+    }
+  });
+})();
+</script>
 </body>
 </html>
