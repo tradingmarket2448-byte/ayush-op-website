@@ -1,15 +1,91 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>AYUSH OP • Admin Panel</title><link rel="stylesheet" href="admin.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script></head><body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AYUSH OP • Admin Panel</title>
+<link rel="stylesheet" href="admin.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-config.js"></script>
+</head>
+<body>
 <div class="bg"></div>
-<header><div><div class="eyebrow">SECURE CLOUD CONTROL CENTER</div><h1>AYUSH <span>OP</span> ADMIN</h1><p>Manage your public website from one place.</p></div><a href="./" class="back">← VIEW WEBSITE</a></header>
+<header>
+  <div><div class="eyebrow">SECURE CLOUD CONTROL CENTER</div><h1>AYUSH <span>OP</span> ADMIN</h1><p>Manage your public website from one place.</p></div>
+  <a href="./" class="back">← VIEW WEBSITE</a>
+</header>
 <main>
-<section id="configNote" class="notice">Checking Supabase connection…</section>
-<section id="authPanel" class="panel auth-panel"><div class="panel-head"><div><small>LOGIN</small><h2>ADMIN SIGN IN</h2><p>Use the Supabase admin account you created.</p></div></div><form id="loginForm" class="grid"><label class="full">Email<input id="loginEmail" type="email" required autocomplete="username"></label><label class="full">Password<input id="loginPassword" type="password" required autocomplete="current-password"></label><button class="save full" type="submit">SIGN IN SECURELY</button></form></section>
-<div id="appPanel" style="display:none">
-<section class="panel"><div class="panel-head"><div><small>01</small><h2>PROFILE & TEXT</h2></div><button class="save" data-save>SAVE CHANGES</button></div><div class="grid"><label>Real name<input data-key="profileName" id="profileName"></label><label>Brand name<input data-key="displayName" id="displayName"></label><label>Hero title<input data-key="heroTitle" id="heroTitle"></label><label>Hero subtitle<input data-key="heroSubtitle" id="heroSubtitle"></label><label class="full">Hero text<textarea data-key="heroText" id="heroText"></textarea></label><label class="full">About Me<textarea data-key="aboutText" id="aboutText"></textarea></label></div></section>
-<section class="panel"><div class="panel-head"><div><small>02</small><h2>SOCIAL LINKS</h2></div></div><div class="grid"><label>Phone<input data-key="phone" id="phone"></label><label>Instagram label<input data-key="instagramLabel" id="instagramLabel"></label><label class="full">Instagram URL<input data-key="instagram" id="instagram"></label><label>Telegram label<input data-key="telegramLabel" id="telegramLabel"></label><label class="full">Telegram URL<input data-key="telegram" id="telegram"></label><label>Discord username<input data-key="discord" id="discord"></label><label>Discord invite URL<input data-key="discordLink" id="discordLink" placeholder="https://discord.gg/... (optional)"></label><label>YouTube label<input data-key="youtubeLabel" id="youtubeLabel"></label><label>YouTube URL<input data-key="youtube" id="youtube" placeholder="Paste when ready"></label><label>X/Twitter label<input data-key="twitterLabel" id="twitterLabel"></label><label>X/Twitter URL<input data-key="twitter" id="twitter" placeholder="Paste when ready"></label></div><div class="status" id="saveStatus">Cloud sync enabled</div></section>
-<section class="panel"><div class="panel-head"><div><small>03</small><h2>CLOUD PHOTOS</h2><p>Uploads go to your <b>ayush-media</b> Supabase bucket and appear on the public site.</p></div></div><form id="photoUploadForm" class="grid"><label>Photo title<input id="photoTitle" placeholder="Hero / Event / Ride"></label><label>Replace slot<select id="photoSlot"><option value="1">Slot 1</option><option value="2">Slot 2</option><option value="3">Slot 3</option><option value="99">New gallery photo</option></select></label><label class="full">Image<input id="photoFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif" required></label><button class="save full" type="submit">UPLOAD TO CLOUD</button></form><div id="cloudPhotos" class="cloud-photo-grid"></div></section>
-<section class="panel"><div class="panel-head"><div><small>04</small><h2>PROJECTS</h2></div><button class="save" data-save-projects>SAVE PROJECTS</button></div><div class="grid"><label>Project 1 title<input id="project1Title"></label><label>Project 2 title<input id="project2Title"></label><label>Project 3 title<input id="project3Title"></label><label class="full">Project 1 description<textarea id="project1Desc"></textarea></label><label class="full">Project 2 description<textarea id="project2Desc"></textarea></label><label class="full">Project 3 description<textarea id="project3Desc"></textarea></label></div></section>
-<section class="panel"><div class="panel-head"><div><small>05</small><h2>HELP INBOX</h2><p>Visitor requests are stored in your cloud database.</p></div></div><div id="requests" class="requests"></div></section>
-<section class="panel"><button id="logoutBtn" class="danger wide">LOG OUT</button></section>
-<section class="notice"><b>SECURITY:</b> This admin uses Supabase Auth + database RLS + Storage policies. Never put a service-role/secret key into the website.</section>
-</div></main><div id="toast" class="toast"></div><script src="site-admin.js?v=6"></script><script>document.querySelector('[data-save-projects]')?.addEventListener('click',()=>window.dispatchEvent(new Event('save-projects')));</script></body></html>
+  <section id="configNote" class="notice">Checking Supabase connection…</section>
+
+  <section id="authPanel" class="panel auth-panel">
+    <div class="panel-head"><div><small>LOGIN</small><h2>ADMIN SIGN IN</h2><p>Use your Supabase admin account.</p></div></div>
+    <form id="loginForm" class="grid">
+      <label class="full">Email<input id="loginEmail" type="email" required autocomplete="username"></label>
+      <label class="full">Password<input id="loginPassword" type="password" required autocomplete="current-password"></label>
+      <button class="save full" type="submit">SIGN IN SECURELY</button>
+    </form>
+    <div id="loginHint" class="status" style="opacity:1;transform:none;color:#aeb0b8;margin-top:14px"></div>
+  </section>
+
+  <div id="appPanel" style="display:none">
+    <section class="panel">
+      <div class="panel-head"><div><small>01</small><h2>PROFILE & TEXT</h2><p>Changes here update the public homepage.</p></div><button class="save" id="saveSettings">SAVE CHANGES</button></div>
+      <div class="grid">
+        <label>Real name<input id="profileName"></label>
+        <label>Brand name<input id="displayName"></label>
+        <label>Hero title<input id="heroTitle"></label>
+        <label>Hero subtitle<input id="heroSubtitle"></label>
+        <label class="full">Hero text<textarea id="heroText"></textarea></label>
+        <label class="full">About Me<textarea id="aboutText"></textarea></label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><small>02</small><h2>SOCIAL LINKS</h2><p>Paste complete URLs where applicable.</p></div><button class="save" id="saveSocials">SAVE SOCIALS</button></div>
+      <div class="grid">
+        <label>Phone<input id="phone" placeholder="9754478008"></label>
+        <label>Instagram label<input id="instagramLabel" placeholder="@yk._4yushhh"></label>
+        <label class="full">Instagram URL<input id="instagram"></label>
+        <label>Telegram label<input id="telegramLabel" placeholder="@maybe_4yush"></label>
+        <label class="full">Telegram URL<input id="telegram" placeholder="https://t.me/maybe_4yush"></label>
+        <label>Discord username<input id="discord" placeholder="@pandit.vidhyak"></label>
+        <label>Discord invite URL<input id="discordLink" placeholder="https://discord.gg/... (optional)"></label>
+        <label>YouTube label<input id="youtubeLabel" placeholder="COMING SOON"></label>
+        <label>YouTube URL<input id="youtube" placeholder="Paste when ready"></label>
+        <label>X/Twitter label<input id="twitterLabel" placeholder="COMING SOON"></label>
+        <label>X/Twitter URL<input id="twitter" placeholder="Paste when ready"></label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><small>03</small><h2>PHOTOS BY URL</h2><p>No Storage upload needed. Paste the direct image link from ImgBB or another image host.</p></div><button class="save" id="savePhotos">SAVE PHOTOS</button></div>
+      <div class="grid">
+        <label>Photo 1 direct URL<input id="photoUrl1" placeholder="https://i.ibb.co/.../photo1.jpg"></label>
+        <label>Photo 1 title<input id="photoTitle1" placeholder="FORMAL MODE"></label>
+        <label>Photo 2 direct URL<input id="photoUrl2" placeholder="https://i.ibb.co/.../photo2.png"></label>
+        <label>Photo 2 title<input id="photoTitle2" placeholder="RIDE MODE"></label>
+        <label>Photo 3 direct URL<input id="photoUrl3" placeholder="https://i.ibb.co/.../photo3.jpg"></label>
+        <label>Photo 3 title<input id="photoTitle3" placeholder="EVENT MODE"></label>
+      </div>
+      <div class="status" id="photoStatus"></div>
+      <div id="cloudPhotos" class="cloud-photo-grid"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><small>04</small><h2>PROJECTS</h2><p>Public homepage shows your first three projects.</p></div><button class="save" id="saveProjects">SAVE PROJECTS</button></div>
+      <div id="projectsEditor" class="requests"></div>
+      <button class="back" id="addProject" style="margin-top:14px">＋ ADD PROJECT SLOT</button>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><div><small>05</small><h2>HELP INBOX</h2><p>Visitor requests are stored in Supabase.</p></div><button class="back" id="refreshRequests">REFRESH</button></div>
+      <div id="requests" class="requests"></div>
+    </section>
+
+    <section class="panel"><button id="logoutBtn" class="danger wide">LOG OUT</button></section>
+    <section class="notice"><b>SECURITY:</b> This panel uses Supabase Auth + RLS. Never put a service-role/secret key into <code>supabase-config.js</code>.</section>
+  </div>
+</main>
+<div id="toast" class="toast"></div>
+<script src="site-admin.js"></script>
+</body>
+</html>

@@ -1,49 +1,223 @@
 (() => {
   const cfg = window.AYUSH_SUPABASE || {};
-  const client = (window.supabase && cfg.url && cfg.publishableKey && !String(cfg.publishableKey).includes('PASTE_YOUR')) ? window.supabase.createClient(cfg.url, cfg.publishableKey) : null;
-  const bucket = cfg.bucket || 'ayush-media';
   const $ = id => document.getElementById(id);
-  const authPanel = $('authPanel');
-  const appPanel = $('appPanel');
-  const configNote = $('configNote');
-  let settingsId=1;
+  const client = (window.supabase && cfg.url && cfg.publishableKey && !String(cfg.publishableKey).includes('PASTE_YOUR'))
+    ? window.supabase.createClient(cfg.url, cfg.publishableKey)
+    : null;
 
-  const defaultSettings={site_name:'AYUSH OP',real_name:'Ayush Mishra',hero_title:'AYUSH OP',tagline:'Creator · Gamer · Developer · Problem Solver',hero_description:'Welcome to my personal space. Explore my work, connect with me, and ask for help whenever you need it.',about_text:'I’m passionate about technology, gaming, web development, creativity, and helping people solve problems. I enjoy building projects, learning new tools, and turning ideas into interactive experiences.',phone:'9754478008',instagram:'https://www.instagram.com/yk._4yushhh/',instagram_label:'@yk._4yushhh',telegram:'https://t.me/maybe_4yush',telegram_label:'@maybe_4yush',discord:'@pandit.vidhyak',discord_link:'',youtube:'',youtube_label:'COMING SOON',twitter:'',twitter_label:'COMING SOON'};
-  if(!client){ configNote.textContent='Supabase is not configured yet. Add the Publishable key in supabase-config.js.'; authPanel.style.display='block'; return; }
+  const DEFAULTS = {
+    site_name:'AYUSH OP', real_name:'Ayush Mishra', hero_title:'AYUSH OP',
+    tagline:'Creator · Gamer · Developer · Problem Solver',
+    hero_description:'Welcome to my personal space. Explore my work, connect with me, and ask for help whenever you need it.',
+    about_text:'I’m passionate about technology, gaming, web development, creativity, and helping people solve problems. I enjoy building projects, learning new tools, and turning ideas into interactive experiences.',
+    phone:'9754478008', instagram:'https://www.instagram.com/yk._4yushhh/', instagram_label:'@yk._4yushhh',
+    telegram:'https://t.me/maybe_4yush', telegram_label:'@maybe_4yush', discord:'@pandit.vidhyak', discord_link:'',
+    youtube:'', youtube_label:'COMING SOON', twitter:'', twitter_label:'COMING SOON'
+  };
+  const DEFAULT_PHOTOS = [
+    {sort_order:1,title:'FORMAL MODE',image_url:'https://i.ibb.co/Y7Dy1cPt/Screenshot-2026-08-12-21-46-23-62-99c04817c0de5652397fc8b56c3b3817.jpg'},
+    {sort_order:2,title:'RIDE MODE',image_url:'https://i.ibb.co/h143FnYk/file-00000000d2988211953bc26292c8154c.png'},
+    {sort_order:3,title:'EVENT MODE',image_url:'https://i.ibb.co/GfGjzqqY/IMG-20260807-WA0006.jpg'}
+  ];
 
-  function toast(msg,ok=true){const t=$('toast');t.textContent=msg;t.className='toast '+(ok?'ok':'bad');setTimeout(()=>t.className='toast',2500)}
-  function showApp(){authPanel.style.display='none';appPanel.style.display='block'}
-  function showAuth(){authPanel.style.display='block';appPanel.style.display='none'}
+  const authPanel=$('authPanel'), appPanel=$('appPanel'), configNote=$('configNote');
+  let projectRows=[];
+
+  function toast(msg, ok=true){
+    const t=$('toast'); if(!t) return;
+    t.textContent=msg; t.className='toast '+(ok?'ok':'bad');
+    setTimeout(()=>{t.className='toast'},3200);
+  }
+  function showApp(){authPanel.style.display='none';appPanel.style.display='block';}
+  function showAuth(){authPanel.style.display='block';appPanel.style.display='none';}
+  function requireClient(){
+    if(!client) throw new Error('Supabase is not configured. Keep your existing supabase-config.js with the real publishable key.');
+  }
+
   async function ensureAdmin(){
+    requireClient();
     const {data:{user}}=await client.auth.getUser();
     if(!user) return false;
     const {data,error}=await client.from('admin_users').select('user_id').eq('user_id',user.id).maybeSingle();
-    if(error || !data){ await client.auth.signOut(); toast('This account is not an AYUSH OP admin.',false); return false; }
-    return true;
+    if(error){console.error(error);return false;}
+    return !!data;
   }
-  async function start(){if(await ensureAdmin()){showApp();await loadAll()}else showAuth()}
-  $('loginForm')?.addEventListener('submit',async e=>{e.preventDefault(); if(!client){toast('Supabase is not configured. Check supabase-config.js.',false); return;} const email=$('loginEmail')?.value.trim()||''; const password=$('loginPassword')?.value||''; if(!email||!password){toast('Enter your email and password.',false);return;} try{const {error}=await client.auth.signInWithPassword({email,password}); if(error){toast(error.message,false);return;} if(!(await ensureAdmin()))return; showApp(); await loadAll();}catch(err){console.error(err);toast(err?.message||'Login failed.',false);}});
-  $('logoutBtn')?.addEventListener('click',async()=>{await client.auth.signOut();location.reload()});
 
-  const fieldMap={profileName:'real_name',displayName:'site_name',heroTitle:'hero_title',heroSubtitle:'tagline',heroText:'hero_description',aboutText:'about_text',phone:'phone',instagram:'instagram',instagramLabel:'instagram_label',telegram:'telegram',telegramLabel:'telegram_label',discord:'discord',discordLink:'discord_link',youtube:'youtube',youtubeLabel:'youtube_label',twitter:'twitter',twitterLabel:'twitter_label'};
-  async function loadSettings(){const {data,error}=await client.from('site_settings').select('*').eq('id',settingsId).maybeSingle(); if(error)throw error; const c=data||defaultSettings; Object.entries(fieldMap).forEach(([id,key])=>{const el=$(id);if(el)el.value=c[key]??''});}
-  async function saveSettings(){const payload={id:settingsId};Object.entries(fieldMap).forEach(([id,key])=>payload[key]=$(id)?.value??'');const {error}=await client.from('site_settings').upsert(payload,{onConflict:'id'});if(error)throw error;toast('Website settings saved ✓')}
-  document.querySelectorAll('[data-save]').forEach(btn=>btn.addEventListener('click',()=>saveSettings().catch(e=>toast(e.message,false))));
-  window.addEventListener('save-projects',()=>saveProjects().catch(e=>toast(e.message,false)));
+  $('loginForm')?.addEventListener('submit', async e=>{
+    e.preventDefault();
+    try{
+      requireClient();
+      const email=$('loginEmail').value.trim();
+      const password=$('loginPassword').value;
+      $('loginHint').textContent='Signing in…';
+      const {error}=await client.auth.signInWithPassword({email,password});
+      if(error){$('loginHint').textContent=error.message;toast(error.message,false);return;}
+      if(!(await ensureAdmin())){
+        await client.auth.signOut();
+        $('loginHint').textContent='Login worked, but this email is not in admin_users.';
+        toast('This account is not an admin.',false);
+        return;
+      }
+      $('loginHint').textContent=''; showApp(); await loadAll(); toast('Welcome to AYUSH OP Admin ✓');
+    }catch(err){console.error(err); $('loginHint').textContent=err.message; toast(err.message,false);}
+  });
 
-  async function loadProjects(){const {data,error}=await client.from('projects').select('*').order('created_at',{ascending:true});if(error)throw error;const items=data||[];for(let i=1;i<=3;i++){const p=items[i-1]||{};if($(`project${i}Title`))$(`project${i}Title`).value=p.title||['Future Web','Gaming Hub','Help Center'][i-1];if($(`project${i}Desc`))$(`project${i}Desc`).value=p.description||'';}}
-  async function saveProjects(){const {data:old,error:e}=await client.from('projects').select('*').order('created_at',{ascending:true});if(e)throw e;for(let i=1;i<=3;i++){const title=$(`project${i}Title`)?.value.trim();const description=$(`project${i}Desc`)?.value.trim();const existing=(old||[])[i-1];if(existing){const {error}=await client.from('projects').update({title,description}).eq('id',existing.id);if(error)throw error}else{const {error}=await client.from('projects').insert({title,description,technologies:[]});if(error)throw error;}}toast('Projects saved ✓')}
+  $('logoutBtn')?.addEventListener('click',async()=>{try{await client.auth.signOut()}finally{location.reload()}});
 
-  function publicUrl(path){return `${cfg.url}/storage/v1/object/public/${encodeURIComponent(bucket)}/${path.split('/').map(encodeURIComponent).join('/')}`}
-  async function getPhotos(){const {data,error}=await client.from('photos').select('*').order('sort_order',{ascending:true}).order('created_at',{ascending:true});if(error)throw error;return data||[]}
-  function renderPhotos(items){const grid=$('cloudPhotos'); if(!grid){console.warn('Admin UI: #cloudPhotos not found; skipping photo render.'); return;} grid.innerHTML=''; if(!items.length){grid.innerHTML='<div class="empty">No cloud photos yet. Upload your first image.</div>';return;}items.forEach(x=>{const card=document.createElement('article');card.className='cloud-photo';card.innerHTML=`<img src="${x.image_url}" alt="${x.title||'AYUSH OP photo'}"><div><b>${x.title||'Untitled'}</b><small>Slot ${x.sort_order||0}</small><button data-delete-photo="${x.id}" data-path="${x.storage_path||''}">DELETE</button></div>`;grid.appendChild(card)});grid.querySelectorAll('[data-delete-photo]').forEach(btn=>btn.addEventListener('click',async()=>{if(!confirm('Delete this photo?'))return;const id=btn.dataset.deletePhoto;const path=btn.dataset.path;try{if(path)await client.storage.from(bucket).remove([path]);const {error}=await client.from('photos').delete().eq('id',id);if(error)throw error;toast('Photo deleted ✓');renderPhotos(await getPhotos())}catch(e){toast(e.message,false)}}))}
-  async function refreshPhotos(){renderPhotos(await getPhotos())}
-  async function uploadPhoto(file,title,slot){if(!file)throw new Error('Choose an image first.');if(!file.type.startsWith('image/'))throw new Error('Only image files are allowed.');if(file.size>10*1024*1024)throw new Error('Maximum file size is 10 MB.');const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'jpg');const path=`uploads/${Date.now()}-${crypto.randomUUID()}.${ext}`;const up=await client.storage.from(bucket).upload(path,file,{contentType:file.type,upsert:false});if(up.error)throw up.error;const url=publicUrl(path);if(slot){const old=(await client.from('photos').select('*').eq('sort_order',slot).limit(1).maybeSingle()).data;if(old){if(old.storage_path)await client.storage.from(bucket).remove([old.storage_path]);await client.from('photos').delete().eq('id',old.id);}}const {error}=await client.from('photos').insert({title:title||file.name,image_url:url,storage_path:path,photo_type:'profile',sort_order:Number(slot||99)});if(error){await client.storage.from(bucket).remove([path]);throw error;}}
-  $('photoUploadForm')?.addEventListener('submit',async e=>{e.preventDefault();try{const f=$('photoFile').files[0];const t=$('photoTitle').value.trim();const slot=$('photoSlot').value;await uploadPhoto(f,t,slot);$('photoUploadForm').reset();toast('Photo uploaded to cloud ✓');await refreshPhotos()}catch(err){toast(err.message,false)}})
+  const settingsFields={
+    profileName:'real_name',displayName:'site_name',heroTitle:'hero_title',heroSubtitle:'tagline',heroText:'hero_description',aboutText:'about_text',
+    phone:'phone',instagram:'instagram',instagramLabel:'instagram_label',telegram:'telegram',telegramLabel:'telegram_label',discord:'discord',discordLink:'discord_link',
+    youtube:'youtube',youtubeLabel:'youtube_label',twitter:'twitter',twitterLabel:'twitter_label'
+  };
 
-  async function loadRequests(){const box=$('requests'); if(!box){console.warn('Admin UI: #requests not found; skipping help inbox.'); return;} const {data,error}=await client.from('help_requests').select('*').order('created_at',{ascending:false});if(error)throw error;box.innerHTML=(data||[]).length?(data||[]).map(x=>`<article class="request"><div><b>${escapeHtml(x.name)}</b><span>${escapeHtml(x.category||'General')} · ${new Date(x.created_at).toLocaleString()}</span></div><p>${escapeHtml(x.problem)}</p><small>${escapeHtml(x.email||'No email')}</small><div class="request-actions"><button data-status="${x.id}" data-value="resolved">MARK RESOLVED</button><button data-rdelete="${x.id}" class="danger">DELETE</button></div></article>`).join(''):'<div class="empty">No help requests yet.</div>';box.querySelectorAll('[data-rdelete]').forEach(b=>b.onclick=async()=>{await client.from('help_requests').delete().eq('id',b.dataset.rdelete);loadRequests()});box.querySelectorAll('[data-status]').forEach(b=>b.onclick=async()=>{await client.from('help_requests').update({status:b.dataset.value}).eq('id',b.dataset.status);loadRequests()});}
-  function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
-  async function loadAll(){try{await loadSettings();await loadProjects();await refreshPhotos();await loadRequests()}catch(e){toast(e.message,false)}}
-  window.addEventListener('focus',()=>{if(appPanel && appPanel.style.display!=='none')loadRequests().catch(()=>{})});
+  async function loadSettings(){
+    const {data,error}=await client.from('site_settings').select('*').eq('id',1).maybeSingle();
+    if(error) throw error;
+    const c={...DEFAULTS,...(data||{})};
+    Object.entries(settingsFields).forEach(([id,key])=>{if($(id)) $(id).value=c[key]??'';});
+  }
+
+  async function saveSettings(){
+    const payload={id:1};
+    Object.entries(settingsFields).forEach(([id,key])=>payload[key]=$(id)?.value.trim()??'');
+    const {error}=await client.from('site_settings').upsert(payload,{onConflict:'id'});
+    if(error) throw error;
+    toast('Website text & settings saved ✓');
+  }
+  $('saveSettings')?.addEventListener('click',()=>saveSettings().catch(e=>toast(e.message,false)));
+  $('saveSocials')?.addEventListener('click',()=>saveSettings().catch(e=>toast(e.message,false)));
+
+  function normalizeRows(rows){
+    const map=new Map((rows||[]).map(r=>[Number(r.sort_order),r]));
+    return [1,2,3].map(slot=>map.get(slot)||DEFAULT_PHOTOS[slot-1]);
+  }
+
+  async function loadPhotos(){
+    const {data,error}=await client.from('photos').select('id,title,image_url,sort_order,created_at').order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+    if(error) throw error;
+    const rows=normalizeRows(data||[]);
+    rows.forEach((p,i)=>{
+      const slot=i+1;
+      $(`photoUrl${slot}`).value=p.image_url||'';
+      $(`photoTitle${slot}`).value=p.title||DEFAULT_PHOTOS[i].title;
+    });
+    renderPhotoPreview(rows);
+  }
+
+  function renderPhotoPreview(rows){
+    const grid=$('cloudPhotos'); grid.innerHTML='';
+    rows.forEach((p,i)=>{
+      const card=document.createElement('article'); card.className='cloud-photo';
+      const img=p.image_url?`<img src="${escapeAttr(p.image_url)}" alt="">`:`<div class="empty">No image</div>`;
+      card.innerHTML=`${img}<div><b>Slot ${i+1}: ${escapeHtml(p.title||'Untitled')}</b><small>${escapeHtml(p.image_url||'')}</small></div>`;
+      grid.appendChild(card);
+    });
+  }
+
+  function validImageUrl(url){
+    try{const u=new URL(url); return /^https?:$/.test(u.protocol)}catch{return false}
+  }
+
+  async function savePhotos(){
+    for(let slot=1;slot<=3;slot++){
+      const image_url=$(`photoUrl${slot}`).value.trim();
+      const title=$(`photoTitle${slot}`).value.trim()||`PHOTO ${slot}`;
+      if(!image_url){
+        const {error}=await client.from('photos').delete().eq('sort_order',slot);
+        if(error) throw error;
+        continue;
+      }
+      if(!validImageUrl(image_url)) throw new Error(`Photo ${slot}: enter a valid http/https image URL.`);
+      const {data:existing,error:findError}=await client.from('photos').select('id').eq('sort_order',slot).maybeSingle();
+      if(findError) throw findError;
+      if(existing){
+        const {error}=await client.from('photos').update({title,image_url,sort_order:slot,photo_type:'gallery'}).eq('id',existing.id);
+        if(error) throw error;
+      }else{
+        const {error}=await client.from('photos').insert({title,image_url,sort_order:slot,photo_type:'gallery'});
+        if(error) throw error;
+      }
+    }
+    $('photoStatus').textContent='Saved ✓'; $('photoStatus').className='status show';
+    setTimeout(()=>$('photoStatus').className='status',2200);
+    await loadPhotos();
+    toast('Photos saved ✓');
+  }
+  $('savePhotos')?.addEventListener('click',()=>savePhotos().catch(e=>toast(e.message,false)));
+
+  function renderProjectEditor(){
+    const box=$('projectsEditor'); box.innerHTML='';
+    if(!projectRows.length) box.innerHTML='<div class="empty">No projects yet. Add a project slot.</div>';
+    projectRows.forEach((p,index)=>{
+      const card=document.createElement('article'); card.className='request';
+      card.innerHTML=`
+        <div style="padding-right:90px"><b>PROJECT ${index+1}</b><span>${p.id?'Cloud project':'New project'}</span></div>
+        <label style="margin-top:12px">Title<input data-p-title value="${escapeAttr(p.title||'')}"></label>
+        <label style="margin-top:12px">Description<textarea data-p-desc>${escapeHtml(p.description||'')}</textarea></label>
+        <label style="margin-top:12px">Project URL (optional)<input data-p-url value="${escapeAttr(p.project_url||'')}"></label>
+        <div style="display:flex;gap:10px;margin-top:12px"><button class="back" data-delete-project>DELETE</button></div>`;
+      card.querySelector('[data-p-title]').addEventListener('input',e=>p.title=e.target.value);
+      card.querySelector('[data-p-desc]').addEventListener('input',e=>p.description=e.target.value);
+      card.querySelector('[data-p-url]').addEventListener('input',e=>p.project_url=e.target.value);
+      card.querySelector('[data-delete-project]').addEventListener('click',async()=>{
+        if(p.id){const {error}=await client.from('projects').delete().eq('id',p.id); if(error){toast(error.message,false);return;}}
+        projectRows=projectRows.filter(x=>x!==p); renderProjectEditor(); toast('Project removed ✓');
+      });
+      box.appendChild(card);
+    });
+  }
+
+  async function loadProjects(){
+    const {data,error}=await client.from('projects').select('*').order('created_at',{ascending:true});
+    if(error) throw error;
+    projectRows=(data||[]).map(p=>({...p}));
+    renderProjectEditor();
+  }
+
+  async function saveProjects(){
+    for(const p of projectRows){
+      const title=(p.title||'').trim(); const description=(p.description||'').trim(); const project_url=(p.project_url||'').trim();
+      if(!title) continue;
+      if(p.id){
+        const {error}=await client.from('projects').update({title,description,project_url}).eq('id',p.id); if(error) throw error;
+      }else{
+        const {data,error}=await client.from('projects').insert({title,description,project_url,technologies:[]}).select('*').single(); if(error) throw error; p.id=data.id;
+      }
+    }
+    await loadProjects(); toast('Projects saved ✓');
+  }
+  $('saveProjects')?.addEventListener('click',()=>saveProjects().catch(e=>toast(e.message,false)));
+  $('addProject')?.addEventListener('click',()=>{projectRows.push({title:'New Project',description:'',project_url:''});renderProjectEditor();});
+
+  async function loadRequests(){
+    const {data,error}=await client.from('help_requests').select('*').order('created_at',{ascending:false});
+    if(error) throw error;
+    const box=$('requests'); box.innerHTML='';
+    if(!data?.length){box.innerHTML='<div class="empty">No help requests yet.</div>';return;}
+    data.forEach(x=>{
+      const card=document.createElement('article'); card.className='request';
+      card.innerHTML=`<div><b>${escapeHtml(x.name)}</b><span>${escapeHtml(x.category||'General')} · ${new Date(x.created_at).toLocaleString()}</span></div><p>${escapeHtml(x.problem)}</p><small>${escapeHtml(x.email||'No email')}</small><div class="request-actions" style="position:static;margin-top:12px;display:flex;gap:10px"><button class="back" data-resolve>MARK RESOLVED</button><button class="danger" data-delete>DELETE</button></div>`;
+      card.querySelector('[data-resolve]').addEventListener('click',async()=>{const {error}=await client.from('help_requests').update({status:'resolved'}).eq('id',x.id);if(error)toast(error.message,false);else{toast('Marked resolved ✓');loadRequests();}});
+      card.querySelector('[data-delete]').addEventListener('click',async()=>{if(!confirm('Delete this help request?'))return;const {error}=await client.from('help_requests').delete().eq('id',x.id);if(error)toast(error.message,false);else{toast('Request deleted ✓');loadRequests();}});
+      box.appendChild(card);
+    });
+  }
+  $('refreshRequests')?.addEventListener('click',()=>loadRequests().catch(e=>toast(e.message,false)));
+
+  function escapeHtml(s){return String(s??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
+  function escapeAttr(s){return escapeHtml(s).replace(/\r?\n/g,' ');}
+
+  async function loadAll(){
+    await Promise.all([loadSettings(),loadPhotos(),loadProjects(),loadRequests()]);
+  }
+
+  async function start(){
+    if(!client){configNote.textContent='Supabase is not configured. Keep the existing supabase-config.js that already contains your real publishable key.';showAuth();return;}
+    configNote.textContent='Supabase connected. Checking admin session…';
+    try{
+      if(await ensureAdmin()){configNote.textContent='Cloud connected ✓';showApp();await loadAll();}
+      else {configNote.textContent='Supabase connected. Please sign in.';showAuth();}
+    }catch(err){console.error(err);configNote.textContent='Connection error: '+err.message;showAuth();}
+  }
   start();
 })();
